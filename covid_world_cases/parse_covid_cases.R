@@ -2,7 +2,13 @@
 # Save it in a .csv
 # The data are updated everyday, check the website every morning and repeat the operations
 
-##########
+# Import dataset in a variable
+
+covidworldcases <- read.csv("COVID-19-geographic-disbtribution-worldwide-2020-03-23.csv")
+
+View(covidworldcases)
+
+##### OR #####
 # Script for downloading the Excel file into "R" software
 # These libraries are necessary
 
@@ -20,12 +26,7 @@ GET(url, authenticate(":", ":", type="ntlm"), write_disk(tf <- tempfile(fileext 
 
 #read the Dataset sheet into "R"
 
-data <- read_excel(tf)
-
-##########
-# Import dataset in a variable
-
-covidworldcases <- read.csv("COVID-19-geographic-disbtribution-worldwide-2020-03-22.csv")
+covidworldcases <- read_excel(tf)
 
 View(covidworldcases)
 
@@ -42,14 +43,14 @@ summary(covidworldcases)
 ##########
 # Generate a sort of pivot table, apply a sum to the Cases column and aggregate it by the Countries column
 
-tapply(covidworldcases$Cases, covidworldcases$Countries.and.territories, sum)
+tapply(covidworldcases$Cases, covidworldcases$"Countries and territories", sum)
 
 # Put the "pivot table" in a new variable
 
-casesbycountry <- tapply(covidworldcases$Cases, covidworldcases$Countries.and.territories, sum)
+casesbycountry <- tapply(covidworldcases$Cases, covidworldcases$"Countries and territories", sum)
 View(casesbycountry)
 
-deathsbycountry <- tapply(covidworldcases$Deaths ,covidworldcases$Countries.and.territories, sum)
+deathsbycountry <- tapply(covidworldcases$Deaths ,covidworldcases$"Countries and territories", sum)
 View(deathsbycountry)
 
 # Order it
@@ -78,11 +79,27 @@ write.csv(deathsbycountry, file = "deaths_by_country.csv")
 ##########
 # Subset the dataset by country
 
-Italy <- subset(covidworldcases, covidworldcases$Countries.and.territories == "Italy")
-View(Italy)
+China <- subset(covidworldcases, covidworldcases$"Countries and territories" == "China")
+China <- China [c(1,6,7)]
+View(China)
+write.csv(China, file="China.csv")
 
+Italy <- subset(covidworldcases, covidworldcases$"Countries and territories" == "Italy")
+Italy <- Italy [c(1,6,7)]
+View(Italy)
 write.csv(Italy, file="Italy.csv")
 
+France <- subset(covidworldcases, covidworldcases$"Countries and territories" == "France")
+France <- France [c(1,6,7)]
+write.csv(France, file="France.csv")
+
+United_Kingdom <- subset(covidworldcases, covidworldcases$"Countries and territories" == "United_Kingdom")
+United_Kingdom <- United_Kingdom [c(1,6,7)]
+write.csv(United_Kingdom, file="United_Kingdom.csv")
+
+ThreeCountries <- rbind(Italy, France, United_Kingdom)
+View(ThreeCountries)
+write.csv(ThreeCountries, file="threecountries.csv")
 # Create a bar chart
 
 barplot(height = Italy$Deaths, xlab = "Day")
