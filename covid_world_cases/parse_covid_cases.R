@@ -1,7 +1,28 @@
-# First, download the dataset at https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide
+# You can either download the dataset at https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide
 # Save it in a .csv
 # The data are updated everyday, check the website every morning and repeat the operations
 
+##########
+# Script for downloading the Excel file into "R" software
+# These libraries are necessary
+
+library(readxl)
+
+library(httr)
+
+#create the URL where the dataset is stored with automatic updates every day
+
+url <- paste("https://www.ecdc.europa.eu/sites/default/files/documents/COVID-19-geographic-disbtribution-worldwide-",format(Sys.time(), "%Y-%m-%d"), ".xlsx", sep = "")
+
+#download the dataset from the website to a local temporary file
+
+GET(url, authenticate(":", ":", type="ntlm"), write_disk(tf <- tempfile(fileext = ".xlsx")))
+
+#read the Dataset sheet into "R"
+
+data <- read_excel(tf)
+
+##########
 # Import dataset in a variable
 
 covidworldcases <- read.csv("COVID-19-geographic-disbtribution-worldwide-2020-03-22.csv")
