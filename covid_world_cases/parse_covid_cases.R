@@ -41,34 +41,55 @@ tail(covidworldcases)
 summary(covidworldcases)
 
 ##########
-# Generate a sort of pivot table, apply a sum to the Cases column and aggregate it by the Countries column
 
-tapply(covidworldcases$Cases, covidworldcases$"Countries and territories", sum)
+# Improve the dataset by importing list of country with region and ISO-2 code
+
+countrieslist <- read.csv("countrieslist.csv")
+View(countrieslist)
+
+# Keep only useful columns
+
+countrieslistsomecolumns <- countrieslist [c(2, 6)]
+View(countrieslistsomecolumns)
+
+# Join the two data frames by ISO-2 codes to correspond country names with the region
+
+install.packages("dplyr")
+library(dplyr)
+covidworldcasesplusregion <- full_join(countrieslistsomecolumns, covidworldcases, by = "GeoId")
+View(covidworldcasesplusregion)
+
+# Keep only African countries
+
+africa <- subset(covidworldcasesplusregion, covidworldcasesplusregion$"region" == "Africa")
+
+# See what African countries are more impacted by the virus
+
+deathsinafrica <- tapply(africa$Deaths, africa$"Countries and territories", sum)
+deathsinafrica <- deathsinafrica[order(-deathsinafrica)]
+View(deathsinafrica)
+
+##########
+# Generate a sort of pivot table, apply a sum to the Deaths column and aggregate it by the Countries column
+
+tapply(covidworldcases$Deaths, covidworldcases$"Countries and territories", sum)
 
 # Put the "pivot table" in a new variable
 
-casesbycountry <- tapply(covidworldcases$Cases, covidworldcases$"Countries and territories", sum)
-View(casesbycountry)
-
-deathsbycountry <- tapply(covidworldcases$Deaths ,covidworldcases$"Countries and territories", sum)
+deathsbycountry <- tapply(covidworldcases$Deaths, covidworldcases$"GeoId", sum)
 View(deathsbycountry)
 
 # Order it
 
-casesbycountry <- casesbycountry[order(-casesbycountry)]
 deathsbycountry <- deathsbycountry[order(-deathsbycountry)]
-
-View(casesbycountry)
 View(deathsbycountry)
 
 # Select only the 50 first rows
 
-casesbycountry <- casesbycountry[c(1:50)]
 deathsbycountry <- deathsbycountry[c(1:50)]
 
 # Create a bar chart with "pivot" values
 
-barplot(height = casesbycountry)
 barplot(height = deathsbycountry)
 
 # Export "pivot" to use it with any visualisation program
@@ -78,28 +99,58 @@ write.csv(deathsbycountry, file = "deaths_by_country.csv")
 
 ##########
 # Subset the dataset by country
+# Keep useful columns
+# Make cummulative count
+# Keep only values greater than 0 (to begin the day the first death is recorded)
 
-China <- subset(covidworldcases, covidworldcases$"Countries and territories" == "China")
-China <- China [c(1,6,7)]
-View(China)
+Egypt <- subset(covidworldcasesplusregion, covidworldcasesplusregion$"Countries and territories" == "Egypt")
+Egypt <- Egypt [c(3,8,9)]
+Egypt <- Egypt[order(Egypt$DateRep),]
+Egypt <- cumsum(Egypt[, 2])
+Egypt <- subset(Egypt, Egypt > 0)
+View(Egypt)
+write.csv(Egypt, file = "Egypt.csv")
+
+China <- subset(covidworldcasesplusregion, covidworldcasesplusregion$"Countries and territories" == "China")
+China <- China [c(3,8,9)]
+China <- China[order(China$DateRep),]
+China <- cumsum(China[, 2])
+China <- subset(China, China > 0)
 write.csv(China, file="China.csv")
 
-Italy <- subset(covidworldcases, covidworldcases$"Countries and territories" == "Italy")
-Italy <- Italy [c(1,6,7)]
-View(Italy)
+Italy <- subset(covidworldcasesplusregion, covidworldcasesplusregion$"Countries and territories" == "Italy")
+Italy <- Italy [c(3,8,9)]
+Italy <- Italy[order(Italy$DateRep),]
+Italy <- cumsum(Italy[, 2])
+Italy <- subset(Italy, Italy > 0)
 write.csv(Italy, file="Italy.csv")
 
-France <- subset(covidworldcases, covidworldcases$"Countries and territories" == "France")
-France <- France [c(1,6,7)]
+France <- subset(covidworldcasesplusregion, covidworldcasesplusregion$"Countries and territories" == "France")
+France <- France [c(3,8,9)]
+France <- France[order(France$DateRep),]
+France <- cumsum(France[, 2])
+France <- subset(France, France > 0)
 write.csv(France, file="France.csv")
 
-United_Kingdom <- subset(covidworldcases, covidworldcases$"Countries and territories" == "United_Kingdom")
-United_Kingdom <- United_Kingdom [c(1,6,7)]
+United_Kingdom <- subset(covidworldcasesplusregion, covidworldcasesplusregion$"Countries and territories" == "United_Kingdom")
+United_Kingdom <- United_Kingdom [c(3,8,9)]
+United_Kingdom <- United_Kingdom[order(United_Kingdom$DateRep),]
+United_Kingdom <- cumsum(United_Kingdom[, 2])
+United_Kingdom <- subset(United_Kingdom, United_Kingdom > 0)
 write.csv(United_Kingdom, file="United_Kingdom.csv")
 
+United_States <- subset(covidworldcasesplusregion, covidworldcasesplusregion$"Countries and territories" == "United_States_of_America")
+United_States <- United_States [c(3,8,9)]
+United_States <- United_States[order(United_States$DateRep),]
+United_States <- cumsum(United_States[, 2])
+United_States <- subset(United_States, United_States > 0)
+write.csv(United_States, file="United_States.csv")
+
+##########
 ThreeCountries <- rbind(Italy, France, United_Kingdom)
 View(ThreeCountries)
 write.csv(ThreeCountries, file="threecountries.csv")
+
 # Create a bar chart
 
 barplot(height = Italy$Deaths, xlab = "Day")
